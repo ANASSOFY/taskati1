@@ -1,16 +1,3 @@
-# taskati
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<img width="361" height="811" alt="لقطة شاشة 2025-12-13 015400" src="https://github.com/user-attachments/assets/23acdac0-e406-40c6-8406-3092368adff3" />
+<img width="360" height="827" alt="لقطة شاشة 2025-12-13 015449" src="https://github.com/user-attachments/assets/aa3d1f32-affe-44fb-a246-e2443ce384b0" />
+<img width="367" height="804" alt="لقطة شاشة 2025-12-13 015457" src="https://github.com/user-attachments/assets/e03a6f84-3032-4d12-9d84-a95d7e528c1e" />
