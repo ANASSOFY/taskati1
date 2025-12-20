@@ -1,7 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:taskati/widgets/app_bottom.dart';
+import 'home_screens.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -15,37 +16,53 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController nameController = TextEditingController();
 
   Future pickFromCamera() async {
-    final returnedImage =
-        await ImagePicker().pickImage(source: ImageSource.camera);
-    if (returnedImage == null) return;
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+    );
+    if (image == null) return;
 
     setState(() {
-      pickedImage = File(returnedImage.path);
+      pickedImage = File(image.path);
     });
   }
 
   Future pickFromGallery() async {
-    final returnedImage =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (returnedImage == null) return;
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    if (image == null) return;
 
     setState(() {
-      pickedImage = File(returnedImage.path);
+      pickedImage = File(image.path);
     });
   }
 
   void onDone() {
-    final name = nameController.text.trim();
-    if (name.isEmpty) return;
+  final name = nameController.text.trim();
+
+  if (name.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Please enter your name")),
+    );
+    return;
   }
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => HomeScreens(userName: name),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(   
+      body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,   
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // -------- Avatar --------
             CircleAvatar(
               radius: 90,
               backgroundColor: Colors.black,
@@ -74,16 +91,18 @@ class _AuthScreenState extends State<AuthScreen> {
               onPressed: pickFromGallery,
             ),
 
+            const SizedBox(height: 25),
+            const Divider(thickness: 2),
             const SizedBox(height: 20),
 
-         
+            // -------- Name Field --------
             SizedBox(
               width: 280,
               child: TextField(
                 controller: nameController,
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
-                  hintText: "Enter your name",
+                  labelText: "Enter your name",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -91,8 +110,8 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
 
-            const SizedBox(height: 15),
-            
+            const SizedBox(height: 20),
+
             AppBottom(
               title: "Done",
               onPressed: onDone,
