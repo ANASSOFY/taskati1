@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:taskati/screens/splashscreen.dart';  // ← المهم ده
+import 'package:taskati/screens/splashscreen.dart';  
 
 class Taskati extends StatelessWidget {
   const Taskati({super.key});

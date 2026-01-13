@@ -2,72 +2,53 @@ import 'package:flutter/material.dart';
 
 class TaskItem extends StatelessWidget {
   final String title;
-  final String time;
   final String subtitle;
+  final String time;
   final Color color;
 
   const TaskItem({
     super.key,
     required this.title,
-    required this.time,
     required this.subtitle,
+    required this.time,
     required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(20),
+        color: color.withOpacity(.1),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
-          // ===== Left Content =====
+          Container(
+            width: 6,
+            height: 60,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.access_time,
-                        color: Colors.white70, size: 16),
-                    const SizedBox(width: 6),
-                    Text(
-                      time,
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  subtitle,
-                  style: const TextStyle(color: Colors.white),
-                ),
+                Text(title,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text(subtitle,
+                    style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
+                const SizedBox(height: 4),
+                Text(time,
+                    style: const TextStyle(
+                        fontSize: 12, color: Colors.black54)),
               ],
-            ),
-          ),
-
-          // ===== Right TOOL =====
-          RotatedBox(
-            quarterTurns: 3,
-            child: Text(
-              "TODO",
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
-                fontWeight: FontWeight.bold,
-              ),
             ),
           ),
         ],

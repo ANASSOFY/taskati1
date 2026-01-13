@@ -50,16 +50,21 @@ class _AuthScreenState extends State<AuthScreen> {
   Navigator.pushReplacement(
     context,
     MaterialPageRoute(
-      builder: (_) => HomeScreens(userName: name),
+      builder: (_) => HomeScreens(
+        userName: name,
+        pickedImage: pickedImage, // ✅ تمرير الصورة
+      ),
     ),
   );
 }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
+        child: SingleChildScrollView(
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // -------- Avatar --------
@@ -117,6 +122,7 @@ class _AuthScreenState extends State<AuthScreen> {
               onPressed: onDone,
             ),
           ],
+        ),
         ),
       ),
     );

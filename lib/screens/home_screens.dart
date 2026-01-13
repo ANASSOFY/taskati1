@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:taskati/screens/day.dart';
-import 'package:taskati/widgets/task_item.dart';
+import '../models/task_model.dart';
+import '../widgets/task_item.dart';
+import 'add_task_screen.dart';
 
-class HomeScreens extends StatelessWidget {
+class HomeScreens extends StatefulWidget {
   final String userName;
-  final File? pickedImage;
+  final File? pickedImage; // ✅ تمرير الصورة
 
   const HomeScreens({
     super.key,
@@ -15,9 +16,31 @@ class HomeScreens extends StatelessWidget {
   });
 
   @override
+  State<HomeScreens> createState() => _HomeScreensState();
+}
+
+class _HomeScreensState extends State<HomeScreens> {
+  List<TaskModel> tasks = [];
+  DateTime selectedDate = DateTime.now();
+
+  List<DateTime> getWeekDays() {
+    final today = DateTime.now();
+    return List.generate(7, (index) {
+      return DateTime(today.year, today.month, today.day + index);
+    });
+  }
+
+  List<TaskModel> getFilteredTasks() {
+    return tasks.where((task) {
+      return task.date.year == selectedDate.year &&
+          task.date.month == selectedDate.month &&
+          task.date.day == selectedDate.day;
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final String todayDate =
-        DateFormat('MMMM d, yyyy').format(DateTime.now());
+    final todayDate = DateFormat('MMMM d, yyyy').format(selectedDate);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -27,15 +50,14 @@ class HomeScreens extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // -------- Header --------
               Row(
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Hi, $userName ",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        "Hi, ${widget.userName}",
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
@@ -56,12 +78,13 @@ class HomeScreens extends StatelessWidget {
                   CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.black,
-                    backgroundImage:
-                        pickedImage != null ? FileImage(pickedImage!) : null,
-                    child: pickedImage == null
+                    backgroundImage: widget.pickedImage != null
+                        ? FileImage(widget.pickedImage!) // ✅ عرض الصورة
+                        : null,
+                    child: widget.pickedImage == null
                         ? const Icon(
                             Icons.person,
-                            size: 28,
+                            size: 30,
                             color: Colors.deepPurple,
                           )
                         : null,
@@ -69,9 +92,9 @@ class HomeScreens extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 20),
 
-    
+              // -------- Date & Add Button --------
               Row(
                 children: [
                   Column(
@@ -84,9 +107,8 @@ class HomeScreens extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
                       const Text(
-                        "Today",
+                        "Selected Day",
                         style: TextStyle(color: Colors.grey),
                       ),
                     ],
@@ -95,39 +117,84 @@ class HomeScreens extends StatelessWidget {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () async {
+                      final task = await Navigator.push<TaskModel>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              AddTaskScreen(selectedDate: selectedDate),
+                        ),
+                      );
+
+                      if (task != null) {
+                        setState(() => tasks.add(task));
+                      }
+                    },
                     child: const Text(
                       "+ Add Task",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 20),
 
-            
+              // -------- Days Bar --------
               SizedBox(
                 height: 90,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: 7,
+                  itemCount: getWeekDays().length,
                   itemBuilder: (context, index) {
-                    final date =
-                        DateTime.now().add(Duration(days: index));
+                    final day = getWeekDays()[index];
+                    final isSelected =
+                        day.year == selectedDate.year &&
+                        day.month == selectedDate.month &&
+                        day.day == selectedDate.day;
 
-                    return DayItem(
-                      date: date,
-                      active: index == 0,
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedDate = day;
+                        });
+                      },
+                      child: Container(
+                        width: 70,
+                        margin: const EdgeInsets.only(right: 12),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? Colors.deepPurple
+                              : Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              DateFormat('EEE').format(day),
+                              style: TextStyle(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.black54,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              day.day.toString(),
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: isSelected ? Colors.white : Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -135,69 +202,72 @@ class HomeScreens extends StatelessWidget {
 
               const SizedBox(height: 20),
 
+              // -------- Tasks --------
               Expanded(
-                child: ListView(
-                  children: const [
-                    TaskItem(
-                      title: "Flutter Task - 1",
-                      time: "02:25 AM - 02:40 AM",
-                      subtitle: "I will do This Task",
-                      color: Colors.deepPurple,
-                    ),
-                    TaskItem(
-                      title: "Flutter Task - 2",
-                      time: "4:27 PM - 6:42 PM",
-                      subtitle: "I will do This Task",
-                      color: Colors.redAccent,
-                    ),
-                    TaskItem(
-                      title: "Flutter Task - 3",
-                      time: "7:27 PM - 9:43 PM",
-                      subtitle: "I will do This Task",
-                      color: Color.fromARGB(255, 0, 0, 0),
-                    ),
-                    TaskItem(
-                      title: "Flutter Task - 4",
-                      time: "7:27 PM - 9:43 PM",
-                      subtitle: "I will do This Task",
-                      color: Colors.orangeAccent,
-                    ),
-                    TaskItem(
-                      title: "Flutter Task - 5",
-                      time: "7:27 PM - 9:43 PM",
-                      subtitle: "I will do This Task",
-                      color: Color.fromARGB(255, 255, 0, 0),
-                    ),
-                    TaskItem(
-                      title: "Flutter Task - 6",
-                      time: "7:27 PM - 9:43 PM",
-                      subtitle: "I will do This Task",
-                      color: Color.fromARGB(255, 0, 54, 192),
-                    ),
-                    TaskItem(
-                      title: "Flutter Task - 7",
-                      time: "7:27 PM - 9:43 PM",
-                      subtitle: "I will do This Task",
-                      color: Color.fromARGB(255, 0, 0, 0),
-                    ),
-                    TaskItem(
-                      title: "Flutter Task - 8",
-                      time: "7:27 PM - 9:43 PM",
-                      subtitle: "I will do This Task",
-                      color: Color.fromARGB(255, 171, 7, 221),
-                    ),
-                    TaskItem(
-                      title: "Flutter Task - 9",
-                      time: "7:27 PM - 9:43 PM",
-                      subtitle: "I will do This Task",
-                      color: Color.fromARGB(255, 255, 145, 0),
-                    ),
-                  ],
-                ),
+                child: getFilteredTasks().isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        itemCount: getFilteredTasks().length,
+                        itemBuilder: (context, index) {
+                          final task = getFilteredTasks()[index];
+                          return Dismissible(
+                            key: ValueKey(task.title + index.toString()),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 20),
+                              color: Colors.red,
+                              child: const Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                              ),
+                            ),
+                            onDismissed: (_) {
+                              setState(() => tasks.remove(task));
+                            },
+                            child: TaskItem(
+                              title: task.title,
+                              subtitle: task.description,
+                              time: task.time,
+                              color: task.color,
+                            ),
+                          );
+                        },
+                      ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            "assets/images/empty_tasks.png",
+            width: 200,
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            "",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+        ],
       ),
     );
   }
